@@ -5,9 +5,9 @@ import bcrypt from "bcryptjs";
 
 export async function POST(request) {
   const { username, email, password } = await request.json();
+
   await mongoConnect();
   const user = await User.findOne({ email });
-  console.log("user", user);
   if (user) {
     return NextResponse.json(
       { error: "user already present" },
