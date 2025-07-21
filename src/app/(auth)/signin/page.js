@@ -1,7 +1,10 @@
 "use client";
+// import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const LoginPage = () => {
+  const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -20,6 +23,7 @@ const LoginPage = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
+        credentials: "include",
       });
 
       const data = await res.json();
@@ -31,9 +35,11 @@ const LoginPage = () => {
 
       setSuccess("Login successful!");
       setForm({ email: "", password: "" });
+      router.push("/");
 
       // Optional: redirect or store auth token here
     } catch (err) {
+      console.log(err.message);
       setError("Something went wrong");
     }
   };
