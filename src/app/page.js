@@ -1,6 +1,7 @@
 "use client";
 
 import { useCurrent } from "@/hooks/use-current";
+import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
 import { ApiError } from "next/dist/server/api-utils";
 
@@ -19,6 +20,8 @@ function loadScript(src) {
     document.body.appendChild(script);
   });
 }
+
+const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 export default function Home() {
   const { data } = useCurrent();
@@ -43,6 +46,7 @@ export default function Home() {
       currency: data.currency,
       order_id: data.order_id,
       handler: function (res) {
+        alert("payment successful");
         // navigate("/successpage")
       },
       notes: {
@@ -59,13 +63,32 @@ export default function Home() {
     });
   };
 
+  const handleStripePay = async () => {
+    const { data } = await axios.post(
+      "http://localhost:5000/api/create-checkout-session"
+    );
+    console.log(data);
+    const { error } = await stripe.redirectToCheckout({
+      sessionId: data.url,
+    });
+    if (error) {
+      console.error("error arise while opening checkout session");
+    }
+  };
+
   return (
     <div className="flex justify-center items-center h-screen">
       <button
         className="bg-green-500 text-black px-12 py-5 cursor-pointer hover:bg-green-300"
         onClick={handlePay}
       >
-        Pay
+        Razorpay
+      </button>
+      <button
+        className="bg-green-500 text-black px-12 py-5 cursor-pointer hover:bg-green-300"
+        onClick={handleStripePay}
+      >
+        Stripe Pay
       </button>
     </div>
   );
